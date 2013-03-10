@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/JamesMGreene/node-flex.png)](https://travis-ci.org/JamesMGreene/node-flex)
+[![Build Status](https://travis-ci.org/JamesMGreene/node-flex-sdk.png)](https://travis-ci.org/JamesMGreene/node-flex-sdk)
 
-# flex
+# flex-sdk
 
 An NPM wrapper for the [Apache Flex SDK][flex/apache/site] / [Adobe Flex SDK][flex/adobe/site].
 
@@ -8,7 +8,7 @@ An NPM wrapper for the [Apache Flex SDK][flex/apache/site] / [Adobe Flex SDK][fl
 ## Building and Installing
 
 ```shell
-npm install flex
+npm install flex-sdk
 ```
 
 Or grab the source and
@@ -47,14 +47,14 @@ The package exports an object contains:
    "bin" directory of the Flex SDK (e.g. `flexSdk.bin.mxmlc` will provide the
    path to the `mxmlc` executable).
  - a `refresh` function if you ever need to refresh the `bin` object (e.g. if
-   you have an existing `flex` module reference object but then downloaded a
+   you have an existing `flex-sdk` module reference object but then downloaded a
    new Flex SDK).
 
 Below is an example of using this package via node.
 
 ```js
 var childProcess = require('child_process');
-var flexSdk = require('flex');
+var flexSdk = require('flex-sdk');
 var binPath = flexSdk.bin.mxmlc;
 
 var childArgs = [
@@ -90,9 +90,9 @@ using [Grunt][grunt/site].
 
 
 ## Release History
- - 3.0.1: Published to NPM on 2013-03-04.
+ - 3.0.1: Published to NPM on 2013-03-10.
     - Release targeting Adobe Flex SDK v3.0.1.
- - 3.0.0: Published to NPM on 2013-03-04.
+ - 3.0.0: Published to NPM on 2013-03-10.
     - Release targeting Adobe Flex SDK v3.0.0.
 
 
