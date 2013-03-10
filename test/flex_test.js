@@ -78,6 +78,12 @@ module.exports = {
           containsSwfPath = stdout.indexOf(targetBinary) !== -1;
         }
 
+        console.log("Platform: " + process.platform);
+        console.log("TargetBinary: " + targetBinary);
+        console.log("StdOut: " + stdout);
+        console.log("StdErr: " + stderr);
+        console.log("err: " + err);
+
         test.ok(noFailures, 'should compile the target successfully without failures');
         test.ok(noErrors, 'should compile the target successfully without errors');
         test.ok(containsSwfPath, 'should compile the target successfully and show path to output binary');
@@ -126,6 +132,12 @@ module.exports = {
         else {
           containsSwfPath = stdout.indexOf(targetBinary) !== -1;
         }
+
+        console.log("Platform: " + process.platform);
+        console.log("TargetBinary: " + targetBinary);
+        console.log("StdOut: " + stdout);
+        console.log("StdErr: " + stderr);
+        console.log("err: " + err);
 
         test.ok(hadFailures || hadErrors, 'should fail to compile the target with either failures or errors');
         test.ok(!containsSwfPath, 'should not show path to output binary');
