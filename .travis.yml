@@ -2,10 +2,11 @@ language: node_js
 node_js:
   - 0.8
 before_script:
-  - sh --version
+  - npm install -g grunt-cli
+  - ls -al /bin/sh
+  - bash --version
   - java -version
   - ls -al
   - ls -alR lib/
   - ls -alR bin/
   - ls -alR test/
-  - npm install -g grunt-cli

@@ -33,7 +33,7 @@
   },
   "scripts": {
     "install": "node install.js",
-    "test": "grunt travis --verbose"
+    "test": "strace -e trace=open -f grunt travis --verbose"
   },
   "dependencies": {
     "rimraf": "~2.0.2",
