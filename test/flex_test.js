@@ -58,10 +58,17 @@ module.exports = {
       var targetSource = path.join(__dirname, 'testData', 'testApp.as');
       var targetBinary = path.join(__dirname, 'testData', 'testApp.swf');
 
+      var executable = flexSdk.bin.mxmlc;
       var childArgs = [
         '+configname=air',
         targetSource
       ];
+
+      // Hack for non-Windows boxes
+      if (process.platform !== 'win32') {
+        childArgs.splice(0, 0, executable);
+        executable = '/bin/sh';
+      }
 
       // DEBUGGING
       console.log("Platform: " + process.platform);
@@ -71,7 +78,7 @@ module.exports = {
       console.log("TargetSource exists (expecting true): " + fs.existsSync(targetSource));
       console.log("TargetBinary: " + targetBinary);
 
-      childProcess.execFile(flexSdk.bin.mxmlc, childArgs, function(err, stdout, stderr) {
+      childProcess.execFile(executable, childArgs, function(err, stdout, stderr) {
         // DEBUGGING
         console.log("TargetBinary exists (expecting true): " + fs.existsSync(targetBinary));
         console.log("err: " + (err ? err.stack : err));
@@ -122,10 +129,17 @@ module.exports = {
       var targetSource = path.join(__dirname, 'testData', 'errorApp.as');
       var targetBinary = path.join(__dirname, 'testData', 'errorApp.swf');
 
+      var executable = flexSdk.bin.mxmlc;
       var childArgs = [
         '+configname=air',
         targetSource
       ];
+      
+      // Hack for non-Windows boxes
+      if (process.platform !== 'win32') {
+        childArgs.splice(0, 0, executable);
+        executable = '/bin/sh';
+      }
 
       // DEBUGGING
       console.log("Platform: " + process.platform);
@@ -135,7 +149,7 @@ module.exports = {
       console.log("TargetSource exists (expecting true): " + fs.existsSync(targetSource));
       console.log("TargetBinary: " + targetBinary);
 
-      childProcess.execFile(flexSdk.bin.mxmlc, childArgs, function(err, stdout, stderr) {
+      childProcess.execFile(executable, childArgs, function(err, stdout, stderr) {
         // DEBUGGING
         console.log("TargetBinary exists (expecting false): " + fs.existsSync(targetBinary));
         console.log("err: " + (err ? err.stack : err));
