@@ -3,13 +3,5 @@ node_js:
   - 0.8
 before_script:
   - npm install -g grunt-cli
-  - ls -al /bin/sh
-  - bash --version
-  - java -version
-  - ls -al
-  - ls -alR lib/
-  - ls -alR bin/
-  - ls -alR test/
+  - find lib/flex_sdk/ -type f -exec dos2unix {} \;
   - sudo apt-get install -qq strace
-
-
