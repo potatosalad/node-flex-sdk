@@ -4,9 +4,6 @@ node_js:
 before_script:
   - npm install -g grunt-cli
   - ls -al /bin/sh
-  - sudo rm /bin/sh
-  - sudo ln -s /bin/bash /bin/sh
-  - ls -al /bin/sh
   - bash --version
   - java -version
   - ls -al
