@@ -10,3 +10,4 @@ before_script:
   - ls -alR lib/
   - ls -alR bin/
   - ls -alR test/
+  - sudo apt-get install -qq strace
