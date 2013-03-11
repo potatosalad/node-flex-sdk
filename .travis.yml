@@ -5,4 +5,4 @@ before_script:
   - npm install -g grunt-cli
   - sudo apt-get install -qq strace
   - sudo apt-get install tofrodos
-  - find lib/flex_sdk/ -type f -exec dos2unix {} \;
+  - find lib/flex_sdk/ -type f -exec $(which fromdos) {} \;
