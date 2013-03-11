@@ -53,7 +53,7 @@ module.exports = {
       done();
     },
     testIt: function(test) {
-      test.expect(4);
+      test.expect(5);
 
       var targetSource = path.join(__dirname, 'testData', 'testApp.as');
       var targetBinary = path.join(__dirname, 'testData', 'testApp.swf');
@@ -63,7 +63,21 @@ module.exports = {
         targetSource
       ];
 
+      // DEBUGGING
+      console.log("Platform: " + process.platform);
+      console.log("mxmlc: " + flexSdk.bin.mxmlc);
+      console.log("mxmlc exists (expecting true): " + fs.existsSync(flexSdk.bin.mxmlc));
+      console.log("TargetSource: " + targetSource);
+      console.log("TargetSource exists (expecting true): " + fs.existsSync(targetSource));
+      console.log("TargetBinary: " + targetBinary);
+
       childProcess.execFile(flexSdk.bin.mxmlc, childArgs, function(err, stdout, stderr) {
+        // DEBUGGING
+        console.log("TargetBinary exists (expecting true): " + fs.existsSync(targetBinary));
+        console.log("err: " + (err ? err.stack : err));
+        console.log("StdOut: " + stdout);
+        console.log("StdErr: " + stderr);
+
         var stdoutLower = stdout.toLowerCase();
         var stderrLower = stderr.toLowerCase();
 
@@ -78,12 +92,7 @@ module.exports = {
           containsSwfPath = stdout.indexOf(targetBinary) !== -1;
         }
 
-        console.log("Platform: " + process.platform);
-        console.log("TargetBinary: " + targetBinary);
-        console.log("StdOut: " + stdout);
-        console.log("StdErr: " + stderr);
-        console.log("err: " + err);
-
+        test.ok(!err, 'executing mxmlc itself should not fail but did: ' + (err ? err.stack : err));
         test.ok(noFailures, 'should compile the target successfully without failures');
         test.ok(noErrors, 'should compile the target successfully without errors');
         test.ok(containsSwfPath, 'should compile the target successfully and show path to output binary');
@@ -108,7 +117,7 @@ module.exports = {
       done();
     },
     testIt: function(test) {
-      test.expect(3);
+      test.expect(4);
 
       var targetSource = path.join(__dirname, 'testData', 'errorApp.as');
       var targetBinary = path.join(__dirname, 'testData', 'errorApp.swf');
@@ -118,7 +127,21 @@ module.exports = {
         targetSource
       ];
 
+      // DEBUGGING
+      console.log("Platform: " + process.platform);
+      console.log("mxmlc: " + flexSdk.bin.mxmlc);
+      console.log("mxmlc exists (expecting true): " + fs.existsSync(flexSdk.bin.mxmlc));
+      console.log("TargetSource: " + targetSource);
+      console.log("TargetSource exists (expecting true): " + fs.existsSync(targetSource));
+      console.log("TargetBinary: " + targetBinary);
+
       childProcess.execFile(flexSdk.bin.mxmlc, childArgs, function(err, stdout, stderr) {
+        // DEBUGGING
+        console.log("TargetBinary exists (expecting false): " + fs.existsSync(targetBinary));
+        console.log("err: " + (err ? err.stack : err));
+        console.log("StdOut: " + stdout);
+        console.log("StdErr: " + stderr);
+
         var stdoutLower = stdout.toLowerCase();
         var stderrLower = stderr.toLowerCase();
 
@@ -133,12 +156,7 @@ module.exports = {
           containsSwfPath = stdout.indexOf(targetBinary) !== -1;
         }
 
-        console.log("Platform: " + process.platform);
-        console.log("TargetBinary: " + targetBinary);
-        console.log("StdOut: " + stdout);
-        console.log("StdErr: " + stderr);
-        console.log("err: " + err);
-
+        test.ok(err, 'executing mxmlc process itself should fail');
         test.ok(hadFailures || hadErrors, 'should fail to compile the target with either failures or errors');
         test.ok(!containsSwfPath, 'should not show path to output binary');
         test.ok(!fs.existsSync(targetBinary), 'compiled output binary should not exist');
