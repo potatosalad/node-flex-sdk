@@ -11,3 +11,4 @@ before_script:
   - ls -alR bin/
   - ls -alR test/
   - sudo apt-get install -qq strace
+  - sudo rm /bin/sh && sudo ln -s /bin/bash /bin/sh
