@@ -20,6 +20,8 @@ var http = require('http');
 var cp = require('child_process');
 var rimraf = require('rimraf').sync;
 var unzip = require('unzip');
+var tar = require('tar');
+var zlib = require('zlib');
 var pkgMeta = require('./package.json');
 
 // IMPORTANT:
@@ -35,9 +37,12 @@ var flexSdk = require('./lib/flex');
 var libPath = path.join(__dirname, 'lib', 'flex_sdk');
 var tmpPath = path.join(__dirname, 'tmp');
 
-var downloadUrl = pkgMeta.flexSdk.url;
+var flexSdkUrl = (!!process.platform.match(/^darwin/)) ? pkgMeta.flexSdk.macUrl : pkgMega.flexSdk.url;
+var downloadUrl = (typeof process.env.FLEX_SDK_URL === 'string') ? process.env.FLEX_SDK_URL : flexSdkUrl;
 var fileName = downloadUrl.split('/').pop();
 var downloadedFile = path.join(tmpPath, fileName);
+var isZip = (path.extname(fileName) === '.zip') ? true : false;
+var extractPath = path.join(path.dirname(downloadedFile), path.basename(fileName, (isZip === true) ? '.zip' : '.tar.gz'));
 
 function mkdir(name) {
   var dir = path.dirname(name);
@@ -68,11 +73,11 @@ function finishIt(err, stdout, stderr) {
     fs.unlinkSync(downloadedFile);
 
     // Move the contents, if there are files left
-    var files = fs.readdirSync(tmpPath);
+    var files = fs.readdirSync(extractPath);
     var wasRenamed = false;
     if (files.length) {
       console.log('Renaming extracted folder -> flex_sdk');
-      fs.renameSync(tmpPath, libPath);
+      fs.renameSync(extractPath, libPath);
       wasRenamed = true;
     }
 
@@ -106,16 +111,18 @@ function finishIt(err, stdout, stderr) {
 }
 
 function extractIt() {
-  console.log('Extracting zip contents...');
-
-  var unzipStream = unzip.Extract({ path: path.dirname(downloadedFile) });
-  unzipStream.on('error', finishIt);
-  unzipStream.on('close', finishIt);
-
   var readStream = fs.createReadStream(downloadedFile);
-  readStream.pipe(unzipStream);
-  readStream.on('error', finishIt);
-  readStream.on('close', function() { console.log('Read stream closed.'); });
+  var extractStream;
+
+  if (isZip) {
+    console.log('Extracting zip contents...');
+    extractStream = readStream.pipe(unzip.Extract({ path: extractPath }));
+  } else {
+    console.log('Extracting tar.gz contents...');
+    extractStream = readStream.pipe(zlib.createGunzip()).pipe(tar.Extract({ path: path.dirname(downloadedFile) }));
+  }
+
+  extractStream.on('error', finishIt).on('close', finishIt);
 }
 
 function fetchIt() {
