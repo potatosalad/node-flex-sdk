@@ -51,6 +51,7 @@ var downloadUrl = (typeof process.env.FLEX_SDK_URL === 'string') ? process.env.F
 var fileName = downloadUrl.split('/').pop();
 var downloadedFile = path.join(tmpDownloadsPath, fileName);
 var isZip = (path.extname(fileName) === '.zip') ? true : false;
+var tmpRealExtractionsPath = (isZip === true) ? tmpExtractionsPath : path.join(tmpExtractionsPath, path.basename(fileName, '.tar.gz'));
 
 process.on('uncaughtException', function(err) {
   console.error('FATAL! Uncaught exception: ' + err);
@@ -132,7 +133,7 @@ function finishIt() {
   mkdirp(libPath);
 
   // Move the contents, if there are files left
-  copyR(tmpExtractionsPath, libPath, function(err) {
+  copyR(tmpRealExtractionsPath, libPath, function(err) {
     // For isolating extraction problems
     if (err) {
       console.error('Temporary files not copied to their final destination!\nError: ' + err);
@@ -207,7 +208,7 @@ function extractIt() {
       var readStream = fs.createReadStream(downloadedFile);
       console.log('Extracting TAR.GZ: ' + downloadedFile);
       var extractStream = readStream.pipe(zlib.createGunzip()).pipe(tar.Extract({ path: tmpExtractionsPath }));
-      extractStream.on('error', fixLineEndings).on('close', fixLineEndings);
+      extractStream.on('error', finishIt).on('close', finishIt);
     }
   }
   catch (err) {
