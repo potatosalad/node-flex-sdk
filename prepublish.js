@@ -22,6 +22,8 @@ var http = require('http');
 var cp = require('child_process');
 var rimrafAsync = require('rimraf')
 var rimraf = rimrafAsync.sync;
+var tar = require('tar');
+var zlib = require('zlib');
 var mkdirp = require('mkdirp').sync;
 var AdmZip = require('adm-zip');
 var D2UConverter = require('dos2unix').dos2unix;
@@ -44,9 +46,11 @@ var tmpPath = path.join(tmpDir, 'flex_sdk');
 var tmpDownloadsPath = path.join(tmpPath, 'downloads');
 var tmpExtractionsPath = path.join(tmpPath, 'extractions');
 
-var downloadUrl = pkgMeta.flexSdk.url;
+var flexSdkUrl = (!!process.platform.match(/^darwin/)) ? pkgMeta.flexSdk.macUrl : pkgMega.flexSdk.url;
+var downloadUrl = (typeof process.env.FLEX_SDK_URL === 'string') ? process.env.FLEX_SDK_URL : flexSdkUrl;
 var fileName = downloadUrl.split('/').pop();
 var downloadedFile = path.join(tmpDownloadsPath, fileName);
+var isZip = (path.extname(fileName) === '.zip') ? true : false;
 
 process.on('uncaughtException', function(err) {
   console.error('FATAL! Uncaught exception: ' + err);
@@ -182,26 +186,36 @@ function finishIt() {
 }
 
 function extractIt() {
-  console.log('Extracting contents from the ZIP...');
-
   if (fs.existsSync(tmpExtractionsPath)) {
     rimraf(tmpExtractionsPath);
   }
   mkdirp(tmpExtractionsPath);
 
   try {
-    console.log('Exploding ZIP: ' + downloadedFile);
-    var zip = new AdmZip(downloadedFile);
-    zip.extractAllTo(tmpExtractionsPath, true);
+    if (isZip) {
+      console.log('Extracting contents from the ZIP...');
+      console.log('Exploding ZIP: ' + downloadedFile);
+      var zip = new AdmZip(downloadedFile);
+      zip.extractAllTo(tmpExtractionsPath, true);
+      // Delete the ZIP file - Don't do this anymore as we preferred to leverage existing downloaded copies!
+      //fs.unlinkSync(downloadedFile);
 
-    // Delete the ZIP file - Don't do this anymore as we preferred to leverage existing downloaded copies!
-    //fs.unlinkSync(downloadedFile);
-
-    // Next!
-    fixLineEndings();
+      // Next!
+      fixLineEndings();
+    } else {
+      console.log('Extracting contents from the TAR.GZ...');
+      var readStream = fs.createReadStream(downloadedFile);
+      console.log('Extracting TAR.GZ: ' + downloadedFile);
+      var extractStream = readStream.pipe(zlib.createGunzip()).pipe(tar.Extract({ path: tmpExtractionsPath }));
+      extractStream.on('error', fixLineEndings).on('close', fixLineEndings);
+    }
   }
   catch (err) {
-    console.error('Died in a nasty ZIP explosion!\n' + err);
+    if (isZip) {
+      console.error('Died in a nasty ZIP explosion!\n' + err);
+    } else {
+      console.error('Died in a nasty TAR.GZ explosion!\n' + err);
+    }
     process.exit(1);
   }
 }
